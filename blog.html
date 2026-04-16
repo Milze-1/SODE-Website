@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog & Podcast — The School of Daniels & Esthers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0D1B4B; --royal: #1A3A8C; --royal-mid: #2952B3; --royal-soft: #E8EEFF;
+    --gold: #B8922A; --gold-light: #F5E9C8; --white: #FFFFFF; --off-white: #FAFBFF;
+    --gray-100: #F2F4FA; --gray-200: #E2E6F0; --gray-400: #8892AB; --gray-700: #3A4460; --black: #0A0E1A;
+    --ff-display: 'Cormorant Garamond', Georgia, serif; --ff-body: 'Outfit', sans-serif;
+    --radius: 12px; --radius-lg: 20px;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--ff-body); background: var(--off-white); color: var(--gray-700); line-height: 1.7; overflow-x: hidden; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 5%; height: 72px; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gray-200);
+  }
+  nav.scrolled { box-shadow: 0 4px 24px rgba(13,27,75,0.08); }
+  .nav-logo img { height: 50px; width: auto; display: block; }
+  .nav-back { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--gray-700); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s; }
+  .nav-back:hover { color: var(--royal); }
+  .nav-back svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .blog-hero { min-height: 380px; background: var(--navy); display: flex; align-items: flex-end; padding: 100px 5% 60px; position: relative; overflow: hidden; }
+  .blog-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 70% 30%, rgba(26,58,140,0.4) 0%, transparent 60%); }
+  .blog-hero-content { position: relative; }
+  .hero-eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+  .hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1.5px; background: var(--gold); }
+  .blog-hero h1 { font-family: var(--ff-display); font-size: clamp(40px, 6vw, 70px); font-weight: 600; color: var(--white); line-height: 1.05; margin-bottom: 16px; }
+  .blog-hero h1 em { font-style: italic; color: #7FA3E8; font-weight: 400; }
+  .blog-hero p { font-size: 17px; color: rgba(255,255,255,0.5); max-width: 520px; line-height: 1.7; }
+
+  .blog-body { padding: 80px 5%; }
+  .blog-layout { display: grid; grid-template-columns: 1fr 320px; gap: 60px; align-items: start; }
+
+  .blog-filter-tabs { display: flex; gap: 4px; background: var(--gray-200); padding: 4px; border-radius: 10px; width: fit-content; margin-bottom: 40px; }
+  .filter-tab { padding: 8px 18px; border-radius: 7px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; border: none; background: transparent; color: var(--gray-400); transition: background 0.2s, color 0.2s; }
+  .filter-tab.active { background: var(--white); color: var(--navy); box-shadow: 0 2px 8px rgba(13,27,75,0.1); }
+
+  .blog-grid { display: flex; flex-direction: column; gap: 28px; }
+  .blog-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; display: grid; grid-template-columns: 260px 1fr; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; text-decoration: none; }
+  .blog-card:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(13,27,75,0.1); }
+  .blog-card-img { overflow: hidden; }
+  .blog-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+  .blog-card:hover .blog-card-img img { transform: scale(1.05); }
+  .blog-card-body { padding: 28px; display: flex; flex-direction: column; gap: 10px; }
+  .blog-tag { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; background: var(--royal-soft); color: var(--royal); width: fit-content; }
+  .blog-tag.podcast { background: var(--gold-light); color: var(--gold); }
+  .blog-card-body h3 { font-family: var(--ff-display); font-size: 22px; font-weight: 600; color: var(--navy); line-height: 1.25; }
+  .blog-card-body p { font-size: 14px; color: var(--gray-400); line-height: 1.7; flex: 1; }
+  .blog-meta { display: flex; align-items: center; gap: 14px; font-size: 12px; color: var(--gray-400); margin-top: auto; }
+  .blog-meta span { display: flex; align-items: center; gap: 4px; }
+  .blog-meta svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .read-link { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--royal); display: flex; align-items: center; gap: 5px; }
+  .read-link svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .podcast-player { background: var(--navy); border-radius: var(--radius-lg); padding: 24px 28px; display: flex; align-items: center; gap: 20px; text-decoration: none; margin-bottom: 20px; transition: transform 0.2s; }
+  .podcast-player:hover { transform: translateY(-2px); }
+  .play-btn { width: 52px; height: 52px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .play-btn svg { width: 22px; height: 22px; fill: white; }
+  .podcast-info h4 { font-family: var(--ff-display); font-size: 18px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+  .podcast-info p { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+  /* SIDEBAR */
+  .blog-sidebar {}
+  .sidebar-widget { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; }
+  .widget-title { font-family: var(--ff-display); font-size: 20px; font-weight: 600; color: var(--navy); margin-bottom: 16px; }
+  .sidebar-tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sidebar-tag { padding: 6px 12px; border-radius: 20px; background: var(--gray-100); color: var(--gray-700); font-size: 12px; font-weight: 500; cursor: pointer; transition: background 0.2s, color 0.2s; border: none; }
+  .sidebar-tag:hover { background: var(--royal-soft); color: var(--royal); }
+  .subscribe-form { }
+  .subscribe-form input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-200); border-radius: 8px; font-family: var(--ff-body); font-size: 14px; color: var(--navy); background: var(--off-white); outline: none; margin-bottom: 10px; }
+  .subscribe-form input:focus { border-color: var(--royal); box-shadow: 0 0 0 3px rgba(26,58,140,0.08); }
+  .subscribe-form button { width: 100%; padding: 12px; background: var(--royal); color: white; border: none; border-radius: 8px; font-family: var(--ff-body); font-size: 13px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer; transition: background 0.2s; }
+  .subscribe-form button:hover { background: var(--navy); }
+  .recent-post { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--gray-200); cursor: pointer; text-decoration: none; }
+  .recent-post:last-child { border-bottom: none; }
+  .recent-post img { width: 64px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+  .recent-post h5 { font-family: var(--ff-display); font-size: 15px; font-weight: 600; color: var(--navy); line-height: 1.3; margin-bottom: 3px; }
+  .recent-post p { font-size: 11px; color: var(--gray-400); }
+
+  footer { background: var(--black); color: rgba(255,255,255,0.45); padding: 40px 5%; text-align: center; }
+  footer p { font-size: 13px; }
+  footer a { color: rgba(255,255,255,0.4); text-decoration: none; margin: 0 8px; }
+  footer a:hover { color: rgba(255,255,255,0.8); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 900px) {
+    .blog-layout { grid-template-columns: 1fr; }
+    .blog-card { grid-template-columns: 1fr; }
+    .blog-card-img { height: 220px; }
+    .blog-hero { padding: 90px 4% 50px; }
+  }
+  @media (max-width: 540px) {
+    .blog-body { padding: 50px 4%; }
+  }
+  /* BLOG VIEWER MODAL */
+  .viewer-overlay { position: fixed; inset: 0; background: rgba(10,14,26,0.8); backdrop-filter: blur(8px); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px; }
+  .viewer-overlay.open { opacity: 1; pointer-events: auto; }
+  .viewer-modal { background: var(--off-white); border-radius: 16px; width: min(800px, 100%); max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 52px rgba(0,0,0,0.5); transform: translateY(20px); transition: transform 0.3s; }
+  .viewer-overlay.open .viewer-modal { transform: translateY(0); }
+  .viewer-head { padding: 20px 24px; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; background: var(--white); }
+  .viewer-head h3 { font-family: var(--ff-display); font-size: 20px; color: var(--navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 20px; }
+  .viewer-close { background: none; border: 1px solid var(--gray-200); border-radius: 8px; width: 34px; height: 34px; min-width: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--gray-700); transition: 0.2s; font-size: 20px; }
+  .viewer-close:hover { background: var(--royal); color: white; border-color: var(--royal); }
+  .viewer-body { padding: 30px; overflow-y: auto; background: var(--white); }
+  .viewer-meta { display: flex; gap: 15px; font-size: 13px; color: var(--gray-400); margin-top: 10px; margin-bottom: 24px; }
+  .viewer-image { width: 100%; height: auto; max-height: 400px; object-fit: cover; border-radius: 12px; margin-bottom: 24px; }
+  .viewer-video { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin-bottom: 24px; }
+  .viewer-video iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+  .viewer-content { font-family: var(--ff-body); font-size: 16px; line-height: 1.8; color: var(--gray-700); }
+  .viewer-content h2, .viewer-content h3 { font-family: var(--ff-display); color: var(--navy); margin-top: 24px; margin-bottom: 12px; }
+  .viewer-empty { text-align: center; padding: 40px 20px; color: var(--gray-400); font-style: italic; }
+</style>
+</head>
+<body>
+
+<!-- BLOG VIEWER MODAL -->
+<div class="viewer-overlay" id="blogViewerOverlay" onclick="if(event.target===this) closeBlogViewer()">
+  <div class="viewer-modal">
+    <div class="viewer-head">
+      <h3 id="viewerTitle">Read Article</h3>
+      <button class="viewer-close" onclick="closeBlogViewer()">&times;</button>
+    </div>
+    <div class="viewer-body">
+      <h1 id="viewerMainTitle" style="font-family:var(--ff-display);font-size:32px;color:var(--navy);"></h1>
+      <div class="viewer-meta" id="viewerMeta"></div>
+      <div id="viewerMedia"></div>
+      <div class="viewer-content" id="viewerContent"></div>
+    </div>
+  </div>
+</div>
+
+<nav id="navbar">
+  <div class="nav-logo">
+    <img src="Images/SODE_Colored Vertical Lockup (Head).png" alt="School of Daniels and Esthers">
+  </div>
+  <a href="thesode.html" class="nav-back">
+    <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to Main Site
+  </a>
+</nav>
+
+<!-- HERO -->
+<div class="blog-hero">
+  <div class="blog-hero-content">
+    <div class="hero-eyebrow">SODE · Insights</div>
+    <h1>Blog, Articles<br>& <em>Podcasts</em></h1>
+    <p>Practical wisdom for the faith-driven professional — from marketplace strategy to spiritual leadership.</p>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="blog-body">
+  <div class="blog-layout">
+    <div class="blog-main">
+      <div class="blog-filter-tabs">
+        <button class="filter-tab active" onclick="filterPosts('all',this)">All</button>
+        <button class="filter-tab" onclick="filterPosts('article',this)">Articles</button>
+        <button class="filter-tab" onclick="filterPosts('podcast',this)">Podcast</button>
+      </div>
+
+      <div class="blog-grid" id="blogGrid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="blog-sidebar">
+      <div class="sidebar-widget">
+        <div class="widget-title">Latest Episode</div>
+        <div id="latestEpisodeWidget">
+          <!-- Rendered by JS -->
+        </div>
+        <a href="https://www.youtube.com/@thesode" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--royal);text-decoration:none;margin-top:8px;">All Episodes on YouTube →</a>
+      </div>
+
+      <div class="sidebar-widget">
+        <div class="widget-title">Stay Connected</div>
+        <p style="font-size:14px;color:var(--gray-400);margin-bottom:16px;line-height:1.7;">Get new articles and podcast episodes delivered to your inbox.</p>
+        <div class="subscribe-form">
+          <input type="email" placeholder="your@email.com">
+          <button type="button">Subscribe →</button>
+        </div>
+      </div>
+
+      <div class="sidebar-widget">
+        <div class="widget-title">Topics</div>
+        <div class="sidebar-tag-cloud">
+          <button class="sidebar-tag" onclick="filterPosts('all',null)">All Topics</button>
+          <button class="sidebar-tag">Career</button>
+          <button class="sidebar-tag">Leadership</button>
+          <button class="sidebar-tag">Faith</button>
+          <button class="sidebar-tag">Business</button>
+          <button class="sidebar-tag">Networking</button>
+          <button class="sidebar-tag">AI & Tech</button>
+          <button class="sidebar-tag">Finance</button>
+          <button class="sidebar-tag">Sales</button>
+        </div>
+      </div>
+
+      <div class="sidebar-widget">
+        <div class="widget-title">Recent Posts</div>
+        <div id="recentPostsWidget">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>
+  <p>
+    <a href="thesode.html">← Back to Main Site</a>
+    <a href="mailto:connect@thesode.org">connect@thesode.org</a>
+    <a href="tel:+2348160069344">+234 816 006 9344</a>
+  </p>
+  <p style="margin-top:12px;">© 2026 The School of Daniels and Esthers. A Dominion City Initiative.</p>
+</footer>
+
+<script>
+const DEFAULT_BLOGS = [
+  { type: 'article', tag: 'Article', title: 'The Daniel Principle: How to Excel in a Secular Workplace Without Compromising Your Faith', date: 'April 2026', time: '6 min read', image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80', desc: "Daniel didn't hide his faith — he outperformed everyone around him while maintaining absolute integrity. Here's what that looks like for you today in your office, boardroom, or marketplace.", video: '', content: '' },
+  { type: 'podcast', tag: 'Podcast · Ep. 1', title: 'Faith at Work — Is God Interested in Your Career?', date: 'March 2026', time: '22 min', image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&q=80', desc: "In our debut episode, we explore the scriptural basis for pursuing career and business excellence, and why God is not just interested in — but invested in — your professional success.", video: '', content: '' },
+  { type: 'article', tag: 'Article', title: 'Esther\'s Positioning Strategy: 7 Lessons for Modern Professionals', date: 'March 2026', time: '5 min read', image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&q=80', desc: "Esther didn't become queen by accident. She was strategic, prepared, and divinely connected. Discover how her methods translate directly to career advancement in today's competitive world.", video: '', content: '' },
+  { type: 'podcast', tag: 'Podcast · Ep. 2', title: 'Building Relationships That Actually Open Doors', date: 'April 2026', time: '34 min', image: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80', desc: "Relationships are the currency of the marketplace. This episode dives deep into the Biblical framework for building connections that create real opportunities — without manipulation or compromise.", video: '', content: '' },
+  { type: 'article', tag: 'Article', title: 'The Issachar Anointing: How to Thrive in the Age of Artificial Intelligence', date: 'April 2026', time: '7 min read', image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=600&q=80', desc: "The sons of Issachar had 'understanding of the times.' For today's Christian professional, AI is not a threat — it's a tool, and this article shows you exactly how to wield it.", video: '', content: '' }
+];
+
+function getBlogs() { try { const d = localStorage.getItem('sode_blogs'); return d ? JSON.parse(d) : DEFAULT_BLOGS; } catch { return DEFAULT_BLOGS; } }
+
+function extractVideoId(url) {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+}
+
+function openBlogViewer(idx) {
+  const blogs = getBlogs();
+  const b = blogs[idx];
+  if (!b) return;
+  document.getElementById('viewerTitle').textContent = b.type === 'podcast' ? 'Listen to Podcast' : 'Read Article';
+  document.getElementById('viewerMainTitle').textContent = b.title;
+  document.getElementById('viewerMeta').innerHTML = `<span>${b.date}</span><span>·</span><span>${b.time}</span>`;
+  let mediaHtml = '';
+  if (b.video) {
+    const yid = extractVideoId(b.video);
+    if (yid) {
+      mediaHtml = `<div class="viewer-video"><iframe src="https://www.youtube.com/embed/${yid}" allowfullscreen></iframe></div>`;
+    } else if (b.video.endsWith('.mp3') || b.video.endsWith('.wav')) {
+      mediaHtml = `<audio controls style="width:100%;margin-bottom:24px;"><source src="${b.video}" type="audio/mpeg">Your browser does not support the audio element.</audio>`;
+      if (b.image) mediaHtml = `<img src="${b.image}" class="viewer-image">` + mediaHtml;
+    } else {
+      mediaHtml = `<div style="margin-bottom:24px;"><a href="${b.video}" target="_blank" class="btn btn-primary">Open External Media</a></div>`;
+      if (b.image) mediaHtml = `<img src="${b.image}" class="viewer-image">` + mediaHtml;
+    }
+  } else if (b.image) {
+    mediaHtml = `<img src="${b.image}" class="viewer-image">`;
+  }
+  document.getElementById('viewerMedia').innerHTML = mediaHtml;
+  const cCont = document.getElementById('viewerContent');
+  if (b.content && b.content.trim() !== '') {
+    cCont.innerHTML = b.content.replace(/\n/g, '<br>');
+  } else {
+    cCont.innerHTML = `<div class="viewer-empty">This content is currently unavailable or coming soon. Please check back later.</div>`;
+  }
+  document.getElementById('blogViewerOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBlogViewer() {
+  document.getElementById('blogViewerOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(() => document.getElementById('viewerMedia').innerHTML = '', 300);
+}
+
+function renderBlogGrid() {
+  const blogs = getBlogs();
+  const grid = document.getElementById('blogGrid');
+  grid.innerHTML = blogs.map((b, idx) => `
+    <a class="blog-card reveal visible" data-type="${b.type}" href="#" onclick="event.preventDefault(); openBlogViewer(${idx})">
+      <div class="blog-card-img"><img src="${b.image}" alt="${b.type}"></div>
+      <div class="blog-card-body">
+        <span class="blog-tag ${b.type === 'podcast' ? 'podcast' : ''}">${b.tag}</span>
+        <h3>${b.title}</h3>
+        <p>${b.desc}</p>
+        <div class="blog-meta">
+          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${b.time}</span>
+          <span>${b.date}</span>
+        </div>
+        <span class="read-link">${b.type === 'podcast' ? 'Listen Now' : 'Read Article'} <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+      </div>
+    </a>
+  `).join('');
+  
+  const activeFilter = document.querySelector('.filter-tab.active');
+  if (activeFilter) {
+     const filterType = activeFilter.textContent.toLowerCase() === 'all' ? 'all' : (activeFilter.textContent.toLowerCase().includes('article') ? 'article' : 'podcast');
+     filterPosts(filterType, null);
+  }
+}
+
+function renderSidebarWidgets() {
+  const blogs = getBlogs();
+  
+  // Recent posts
+  const recentGrid = document.getElementById('recentPostsWidget');
+  if(recentGrid) {
+    const recent = blogs.slice(0, 3);
+    recentGrid.innerHTML = recent.map((b, idx) => `
+      <a href="#" class="recent-post" onclick="event.preventDefault(); openBlogViewer(${idx})">
+        <img src="${b.image}" alt="${b.type}">
+        <div><h5>${b.title}</h5><p>${b.type === 'podcast' ? 'Podcast · ' + b.time : b.time + ' · ' + b.date}</p></div>
+      </a>
+    `).join('');
+  }
+  
+  // Latest episode
+  const latestEpWidget = document.getElementById('latestEpisodeWidget');
+  if(latestEpWidget) {
+    const latestPodIdx = blogs.findIndex(b => b.type === 'podcast');
+    const latestPod = blogs[latestPodIdx];
+    if (latestPod) {
+      latestEpWidget.innerHTML = `
+        <a class="podcast-player" href="#" style="text-decoration:none;" onclick="event.preventDefault(); openBlogViewer(${latestPodIdx})">
+          <div class="play-btn">
+            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </div>
+          <div class="podcast-info">
+            <h4>${latestPod.title}</h4>
+            <p>${latestPod.time} · SODE Podcast</p>
+          </div>
+        </a>
+      `;
+    } else {
+       latestEpWidget.innerHTML = '<p style="font-size:13px;color:var(--gray-400);">No podcasts available yet.</p>';
+    }
+  }
+}
+
+window.addEventListener('scroll', () => { document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20); });
+
+function filterPosts(type, btn) {
+  if (btn) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  document.querySelectorAll('.blog-card').forEach(card => {
+    card.style.display = (type === 'all' || card.dataset.type === type) ? '' : 'none';
+  });
+}
+
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }), { threshold: 0.1 });
+reveals.forEach(el => observer.observe(el));
+
+// INIT
+renderBlogGrid();
+renderSidebarWidgets();
+window.addEventListener('storage', () => { renderBlogGrid(); renderSidebarWidgets(); });
+</script>
+</body>
+</html>
