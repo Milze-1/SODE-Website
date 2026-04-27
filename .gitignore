@@ -1,0 +1,13 @@
+# dependencies
+node_modules/
+functions/node_modules/
+
+# Firebase credentials and config
+serviceAccountKey.json
+firebase-debug.log
+firebase-debug.*.log
+.firebase/
+
+# OS generated files
+.DS_Store
+Thumbs.db

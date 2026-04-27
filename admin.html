@@ -1334,6 +1334,29 @@
   <div id="toast"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-functions-compat.js"></script>
+  <script>
+    // ─── FIREBASE INIT ───
+    if (!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyCP-fJ-cuD-mbzghvRTbbI5GDSrJHPhb0Y",
+        authDomain: "sode-website.firebaseapp.com",
+        projectId: "sode-website",
+        storageBucket: "sode-website.firebasestorage.app",
+        messagingSenderId: "503305041954",
+        appId: "1:503305041954:web:55964ce11196728cd1327b"
+      });
+    }
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const functions = firebase.functions();
+  </script>
+
   <script>
     // ─── CROPPER INTEGRATION ───
     let currentCropper = null;
@@ -1522,9 +1545,22 @@
         .replace(/[^a-z0-9' ]/g, '');
     }
 
-    function getModules() { try { const d = localStorage.getItem('sode_modules'); return d ? JSON.parse(d) : DEFAULT_MODULES; } catch { return DEFAULT_MODULES; } }
-    function getSpeakers() { try { const d = localStorage.getItem('sode_speakers'); return d ? JSON.parse(d) : DEFAULT_SPEAKERS; } catch { return DEFAULT_SPEAKERS; } }
-    function saveSpeakers(data) { localStorage.setItem('sode_speakers', JSON.stringify(data)); }
+    // ─── LOCAL CACHE ───
+    // We cache Firestore data in memory so the UI stays responsive.
+    let _cachedModules = null;
+    let _cachedSpeakers = null;
+    let _cachedEvents = null;
+    let _cachedBlogs = null;
+    let _cachedMedia = null;
+
+    function getModules() { return _cachedModules || DEFAULT_MODULES; }
+    function getSpeakers() { return _cachedSpeakers || DEFAULT_SPEAKERS; }
+
+    // ─── FIRESTORE SAVE FUNCTIONS ───
+    async function saveSpeakers(data) {
+      _cachedSpeakers = data;
+      try { await db.collection('sode_data').doc('speakers').set({ items: data }); } catch(e) { console.error('saveSpeakers:', e); }
+    }
 
     function generateAutoEventsSeed() {
       const events = [];
@@ -1565,27 +1601,54 @@
       return events.length ? events : DEFAULT_EVENTS;
     }
 
-    function getEvents() {
-      try {
-        const raw = localStorage.getItem('sode_events');
-        if (raw) {
-          const events = JSON.parse(raw) || [];
-          if (Array.isArray(events) && events.length > 5) return events;
-        }
-      } catch { /* ignore */ }
+    function getEvents() { return _cachedEvents && _cachedEvents.length > 0 ? _cachedEvents : generateAutoEventsSeed(); }
+    function getBlogs() { return _cachedBlogs || DEFAULT_BLOGS; }
+    function getMedia() { return _cachedMedia || DEFAULT_MEDIA; }
 
-      const seed = generateAutoEventsSeed();
-      saveEvents(seed);
-      return seed;
+    async function saveModules(data) {
+      _cachedModules = data;
+      try { await db.collection('sode_data').doc('modules').set({ items: data }); } catch(e) { console.error('saveModules:', e); }
     }
-    function getBlogs() { try { const d = localStorage.getItem('sode_blogs'); return d ? JSON.parse(d) : DEFAULT_BLOGS; } catch { return DEFAULT_BLOGS; } }
-    function getMedia() { try { const d = localStorage.getItem('sode_media'); return d ? JSON.parse(d) : DEFAULT_MEDIA; } catch { return DEFAULT_MEDIA; } }
-    function saveModules(data) { localStorage.setItem('sode_modules', JSON.stringify(data)); }
-    function saveEvents(data) { localStorage.setItem('sode_events', JSON.stringify(data)); }
-    function saveBlogs(data) { localStorage.setItem('sode_blogs', JSON.stringify(data)); }
-    function saveMedia(data) { localStorage.setItem('sode_media', JSON.stringify(data)); }
+    async function saveEvents(data) {
+      _cachedEvents = data;
+      try { await db.collection('sode_data').doc('events').set({ items: data }); } catch(e) { console.error('saveEvents:', e); }
+    }
+    async function saveBlogs(data) {
+      _cachedBlogs = data;
+      try { await db.collection('sode_data').doc('blogs').set({ items: data }); } catch(e) { console.error('saveBlogs:', e); }
+    }
+    async function saveMedia(data) {
+      _cachedMedia = data;
+      try { await db.collection('sode_data').doc('media').set({ items: data }); } catch(e) { console.error('saveMedia:', e); }
+    }
+
+    // ─── LOAD ALL DATA FROM FIRESTORE ON STARTUP ───
+    async function loadAllDataFromFirestore() {
+      try {
+        const [modSnap, spkSnap, evSnap, blgSnap, medSnap] = await Promise.all([
+          db.collection('sode_data').doc('modules').get(),
+          db.collection('sode_data').doc('speakers').get(),
+          db.collection('sode_data').doc('events').get(),
+          db.collection('sode_data').doc('blogs').get(),
+          db.collection('sode_data').doc('media').get()
+        ]);
+        _cachedModules = modSnap.exists ? modSnap.data().items : DEFAULT_MODULES;
+        _cachedSpeakers = spkSnap.exists ? spkSnap.data().items : DEFAULT_SPEAKERS;
+        _cachedEvents = evSnap.exists ? evSnap.data().items : null;
+        _cachedBlogs = blgSnap.exists ? blgSnap.data().items : DEFAULT_BLOGS;
+        _cachedMedia = medSnap.exists ? medSnap.data().items : DEFAULT_MEDIA;
+      } catch(e) {
+        console.error('Error loading from Firestore:', e);
+        _cachedModules = DEFAULT_MODULES;
+        _cachedSpeakers = DEFAULT_SPEAKERS;
+        _cachedBlogs = DEFAULT_BLOGS;
+        _cachedMedia = DEFAULT_MEDIA;
+      }
+      renderDashboard(); renderModules(); renderEvents(); renderBlogs(); renderMediaAdmin(); renderSpeakers();
+    }
 
     // ─── TOAST ───
+
     function toast(msg, type = 'success') {
       const t = document.getElementById('toast');
       t.textContent = (type === 'success' ? '✓ ' : '⚠ ') + msg;
@@ -2129,16 +2192,26 @@
     }
 
     // ─── RESET ───
-    function resetAllData() {
+    async function resetAllData() {
       if (!confirm('This will reset ALL content to the original defaults. Are you sure?')) return;
-      localStorage.removeItem('sode_modules'); localStorage.removeItem('sode_events'); localStorage.removeItem('sode_speakers'); localStorage.removeItem('sode_blogs'); localStorage.removeItem('sode_media');
+      _cachedModules = DEFAULT_MODULES;
+      _cachedSpeakers = DEFAULT_SPEAKERS;
+      _cachedEvents = null;
+      _cachedBlogs = DEFAULT_BLOGS;
+      _cachedMedia = DEFAULT_MEDIA;
+      await Promise.all([
+        saveModules(DEFAULT_MODULES),
+        saveSpeakers(DEFAULT_SPEAKERS),
+        saveBlogs(DEFAULT_BLOGS),
+        saveMedia(DEFAULT_MEDIA)
+      ]);
       renderDashboard(); renderModules(); renderEvents(); renderSpeakers(); renderBlogs(); renderMediaAdmin();
       toast('All data reset to defaults.');
     }
 
     // ─── INIT ───
-    renderDashboard();
-    renderBlogs();
+    // Load real data from Firestore first, then render
+    loadAllDataFromFirestore();
   </script>
 </body>
 
