@@ -1756,7 +1756,7 @@
       if (m) openModuleModal(m);
     }
 
-    function saveModule() {
+    async function saveModule() {
       const id = parseInt(document.getElementById('moduleNum').value);
       const title = document.getElementById('moduleTitle').value.trim();
       const application = document.getElementById('moduleApplication').value.trim();
@@ -1776,15 +1776,15 @@
         modules.push(newModule);
         modules.sort((a, b) => a.id - b.id);
       }
-      saveModules(modules);
+      await saveModules(modules);
       closeModal('moduleModal');
       renderModules();
       toast('Module saved successfully!');
     }
 
-    function deleteModule(id) {
+    async function deleteModule(id) {
       if (!confirm('Delete this module? This cannot be undone.')) return;
-      saveModules(getModules().filter(m => m.id !== id));
+      await saveModules(getModules().filter(m => m.id !== id));
       renderModules();
       toast('Module deleted.');
     }
@@ -1867,7 +1867,7 @@
       });
     }
 
-    function saveSpeaker() {
+    async function saveSpeaker() {
       const editId = document.getElementById('speakerEditId').value;
       const name = document.getElementById('speakerName').value.trim();
       const role = document.getElementById('speakerRole').value.trim();
@@ -1886,7 +1886,7 @@
         speakers.push(speaker);
       }
 
-      saveSpeakers(speakers);
+      await saveSpeakers(speakers);
       closeModal('speakerModal');
       renderSpeakers();
       renderSpeakerSelectOptions();
@@ -1895,15 +1895,11 @@
       toast('Speaker saved successfully!');
     }
 
-    function deleteSpeaker(id) {
+    async function deleteSpeaker(id) {
       if (!confirm('Delete this speaker?')) return;
       const speakers = getSpeakers().filter(s => String(s.id) !== String(id));
-      saveSpeakers(speakers);
-
-      // Detach from events
       const events = getEvents().map(ev => (String(ev.speakerId) === String(id) ? { ...ev, speakerId: '' } : ev));
-      saveEvents(events);
-
+      await Promise.all([saveSpeakers(speakers), saveEvents(events)]);
       renderSpeakers();
       renderSpeakerSelectOptions();
       renderEvents();
@@ -1951,7 +1947,7 @@
       if (events[idx]) openEventModal(events[idx], idx);
     }
 
-    function saveEvent() {
+    async function saveEvent() {
       const title = document.getElementById('eventTitle').value.trim();
       const speakerId = document.getElementById('eventSpeakerId').value;
       const dt = document.getElementById('eventDateTime').value;
@@ -1970,16 +1966,17 @@
       const editIdx = document.getElementById('eventEditIdx').value;
       if (editIdx !== '') events[parseInt(editIdx)] = newEvent;
       else { events.push(newEvent); events.sort((a, b) => new Date(a.date) - new Date(b.date)); }
-      saveEvents(events);
+      await saveEvents(events);
       closeModal('eventModal');
       renderEvents();
       renderDashboard();
       toast('Event saved successfully!');
     }
 
-    function deleteEvent(idx) {
+    async function deleteEvent(idx) {
       if (!confirm('Delete this event?')) return;
-      const events = getEvents(); events.splice(idx, 1); saveEvents(events);
+      const events = getEvents(); events.splice(idx, 1);
+      await saveEvents(events);
       renderEvents(); toast('Event deleted.');
     }
 
@@ -2045,7 +2042,7 @@
       if (blogs[idx]) openBlogModal(blogs[idx], idx);
     }
 
-    function saveBlog() {
+    async function saveBlog() {
       const type = document.getElementById('blogType').value;
       const title = document.getElementById('blogTitle').value.trim();
       const date = document.getElementById('blogDate').value.trim();
@@ -2054,25 +2051,23 @@
       const video = document.getElementById('blogVideo').value.trim();
       const desc = document.getElementById('blogDesc').value.trim();
       const content = document.getElementById('blogContent').value.trim();
-
       if (!title) { toast('Please fill in the title.', 'error'); return; }
-
       const tag = (type === 'podcast') ? 'Podcast' : 'Article';
       const newBlog = { type, tag, title, date, time, image, video, desc, content };
       const blogs = getBlogs();
       const editIdx = document.getElementById('blogEditIdx').value;
       if (editIdx !== '') blogs[parseInt(editIdx)] = newBlog;
       else blogs.unshift(newBlog);
-
-      saveBlogs(blogs);
+      await saveBlogs(blogs);
       closeModal('blogModal');
       renderBlogs();
       toast('Post saved successfully!');
     }
 
-    function deleteBlog(idx) {
+    async function deleteBlog(idx) {
       if (!confirm('Delete this post?')) return;
-      const blogs = getBlogs(); blogs.splice(idx, 1); saveBlogs(blogs);
+      const blogs = getBlogs(); blogs.splice(idx, 1);
+      await saveBlogs(blogs);
       renderBlogs(); toast('Post deleted.');
     }
 
@@ -2165,7 +2160,7 @@
       if (items[idx]) openMediaModal(items[idx], idx);
     }
 
-    function saveMediaItem() {
+    async function saveMediaItem() {
       const idx = document.getElementById('mediaEditIdx').value;
       const type = document.getElementById('mediaType').value;
       const m = {
@@ -2180,15 +2175,15 @@
       const items = getMedia();
       if (idx !== '') items[idx] = m;
       else items.push(m);
-      saveMedia(items);
+      await saveMedia(items);
       closeModal('mediaModal');
       renderMediaAdmin(); renderDashboard(); toast(idx !== '' ? 'Media updated' : 'Media added');
     }
 
-    function deleteMedia(idx) {
+    async function deleteMedia(idx) {
       if (!confirm('Are you sure you want to delete this media item?')) return;
       const items = getMedia(); items.splice(idx, 1);
-      saveMedia(items); renderMediaAdmin(); renderDashboard(); toast('Media item deleted');
+      await saveMedia(items); renderMediaAdmin(); renderDashboard(); toast('Media item deleted');
     }
 
     // ─── RESET ───
