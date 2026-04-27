@@ -1340,6 +1340,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-functions-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-storage-compat.js"></script>
   <script>
     // ─── FIREBASE INIT ───
     if (!firebase.apps.length) {
@@ -1355,6 +1356,16 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
     const functions = firebase.functions();
+    const storage = firebase.storage();
+
+    // ─── UPLOAD IMAGE TO FIREBASE STORAGE ───
+    // Takes a base64 dataUrl, uploads to Firebase Storage, returns the public download URL.
+    async function uploadToStorage(dataUrl, folder) {
+      const fileName = folder + '/' + Date.now() + '_' + Math.random().toString(36).slice(2) + '.jpg';
+      const ref = storage.ref('sode-uploads/' + fileName);
+      await ref.putString(dataUrl, 'data_url');
+      return await ref.getDownloadURL();
+    }
   </script>
 
   <script>
@@ -1858,12 +1869,25 @@
     function handleSpeakerImageUpload(input) {
       const file = input.files[0];
       if (!file) return;
-      openCropModal(file, (dataUrl) => {
-        document.getElementById('speakerPhoto').value = dataUrl;
+      openCropModal(file, async (dataUrl) => {
+        // Show preview immediately
         const preview = document.getElementById('speakerPhotoPreview');
         preview.src = dataUrl;
         preview.style.display = 'block';
         input.value = '';
+        // Upload to Firebase Storage and store the URL
+        try {
+          toast('Uploading photo...', 'success');
+          const url = await uploadToStorage(dataUrl, 'speakers');
+          document.getElementById('speakerPhoto').value = url;
+          preview.src = url;
+          toast('Photo uploaded! ✓');
+        } catch(e) {
+          console.error('Upload failed:', e);
+          // Fallback: keep the dataUrl (will hit size limits)
+          document.getElementById('speakerPhoto').value = dataUrl;
+          toast('Upload failed — image may not persist.', 'error');
+        }
       });
     }
 
@@ -2028,12 +2052,22 @@
     function handleImageUpload(input) {
       const file = input.files[0];
       if (!file) return;
-      openCropModal(file, (dataUrl) => {
-        document.getElementById('blogImage').value = dataUrl;
+      openCropModal(file, async (dataUrl) => {
         const preview = document.getElementById('blogImagePreview');
         preview.src = dataUrl;
         preview.style.display = 'block';
         input.value = '';
+        try {
+          toast('Uploading image...', 'success');
+          const url = await uploadToStorage(dataUrl, 'blogs');
+          document.getElementById('blogImage').value = url;
+          preview.src = url;
+          toast('Image uploaded! ✓');
+        } catch(e) {
+          console.error('Upload failed:', e);
+          document.getElementById('blogImage').value = dataUrl;
+          toast('Upload failed — image may not persist.', 'error');
+        }
       });
     }
 
@@ -2146,12 +2180,22 @@
     function handleMediaImageUpload(input) {
       const file = input.files[0];
       if (!file) return;
-      openCropModal(file, (dataUrl) => {
-        document.getElementById('mediaImage').value = dataUrl;
+      openCropModal(file, async (dataUrl) => {
         const preview = document.getElementById('mediaImagePreview');
         preview.src = dataUrl;
         preview.style.display = 'block';
         input.value = '';
+        try {
+          toast('Uploading image...', 'success');
+          const url = await uploadToStorage(dataUrl, 'media');
+          document.getElementById('mediaImage').value = url;
+          preview.src = url;
+          toast('Image uploaded! ✓');
+        } catch(e) {
+          console.error('Upload failed:', e);
+          document.getElementById('mediaImage').value = dataUrl;
+          toast('Upload failed — image may not persist.', 'error');
+        }
       });
     }
 

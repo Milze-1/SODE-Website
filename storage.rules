@@ -1,0 +1,11 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /sode-uploads/{allPaths=**} {
+      // Anyone can read uploaded images (needed for public website)
+      allow read: if true;
+      // Only allow writes for now until auth is fully set up
+      allow write: if request.time < timestamp.date(2026, 8, 1);
+    }
+  }
+}
