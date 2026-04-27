@@ -4229,12 +4229,34 @@
       const events = await getEvents();
       const speakers = await getSpeakers();
       const speakerById = new Map(speakers.map(s => [String(s.id), s]));
-      document.getElementById('eventsList').innerHTML = events.slice(0, 4).map((ev, idx) => `
-        <div class="event-item" onclick="openEventDetail(${idx})" style="cursor:pointer;">
+
+      // Filter: only today (from midnight) and future events
+      const todayMidnight = new Date();
+      todayMidnight.setHours(0, 0, 0, 0);
+
+      const upcoming = events
+        .filter(ev => {
+          const evDate = new Date(ev.date);
+          return evDate >= todayMidnight;
+        })
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .slice(0, 4);
+
+      if (upcoming.length === 0) {
+        document.getElementById('eventsList').innerHTML = `
+          <div class="event-item" style="opacity:0.6;cursor:default;">
+            <div class="event-info"><h4>No upcoming events at this time.</h4><p>Check back soon for new sessions.</p></div>
+          </div>`;
+        return;
+      }
+
+      document.getElementById('eventsList').innerHTML = upcoming.map((ev, idx) => `
+        <div class="event-item" onclick="openEventDetail(${events.indexOf(ev)})" style="cursor:pointer;">
           <div class="event-date-box"><div class="ed-day">${ev.day}</div><div class="ed-mon">${ev.month}</div></div>
           <div class="event-info"><h4>${ev.title}</h4><p>${ev.location}</p></div>
         </div>`).join('');
     }
+
 
     async function renderUpcomingEventSpeakerCard() {
       const wrap = document.getElementById('ueSpeakerWrap');
