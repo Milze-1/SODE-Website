@@ -736,10 +736,212 @@
         pointer-events: auto;
       }
     }
+
+    /* ─── LOGIN SCREEN ─── */
+    #loginScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: linear-gradient(135deg, #0D1B4B 0%, #1A3A8C 60%, #2952B3 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--ff-body);
+      transition: opacity 0.4s ease;
+    }
+
+    #loginScreen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .login-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+      text-align: center;
+      margin: 16px;
+    }
+
+    .login-logo {
+      height: 56px;
+      width: auto;
+      margin-bottom: 12px;
+      filter: brightness(0) invert(1);
+    }
+
+    .login-card .login-subtitle {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 36px;
+    }
+
+    .login-card h2 {
+      font-family: var(--ff-display);
+      font-size: 28px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .login-field {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    .login-field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 8px;
+    }
+
+    .login-field input {
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-family: var(--ff-body);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .login-field input::placeholder {
+      color: rgba(255,255,255,0.3);
+    }
+
+    .login-field input:focus {
+      border-color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.12);
+    }
+
+    #loginError {
+      background: rgba(183,28,28,0.25);
+      border: 1px solid rgba(239,83,80,0.4);
+      color: #ff8a80;
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: none;
+      text-align: left;
+    }
+
+    #loginBtn {
+      width: 100%;
+      padding: 14px;
+      background: #B8922A;
+      color: #fff;
+      font-family: var(--ff-body);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      margin-top: 4px;
+    }
+
+    #loginBtn:hover:not(:disabled) {
+      background: #9a7a22;
+      transform: translateY(-1px);
+    }
+
+    #loginBtn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .login-footer-note {
+      margin-top: 20px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.25);
+    }
+
+    /* ─── LOGOUT BUTTON ─── */
+    #logoutBtn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: rgba(255,255,255,0.45);
+      font-size: 13px;
+      font-family: var(--ff-body);
+      font-weight: 500;
+      transition: background 0.2s, color 0.2s;
+      text-align: left;
+    }
+
+    #logoutBtn:hover {
+      background: rgba(255,255,255,0.08);
+      color: #ff8a80;
+    }
+
+    #logoutBtn svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    #adminUserEmail {
+      font-size: 10px;
+      color: rgba(255,255,255,0.3);
+      padding: 0 12px 10px;
+      word-break: break-all;
+    }
   </style>
 </head>
 
 <body>
+
+  <!-- ─── LOGIN SCREEN ─── -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <img src="Images/SODE_White Primary Logo(footer).png" alt="SODE Logo" class="login-logo">
+      <div class="login-subtitle">Dominion City Victoria Island</div>
+      <h2>Admin Sign In</h2>
+      <p style="color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:28px;">Enter your credentials to access the content panel.</p>
+
+      <div class="login-field">
+        <label for="loginEmail">Email Address</label>
+        <input type="email" id="loginEmail" placeholder="connect.thesode@gmail.com" autocomplete="email">
+      </div>
+      <div class="login-field">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+      </div>
+
+      <div id="loginError"></div>
+
+      <button id="loginBtn" onclick="handleLogin()">Sign In</button>
+
+      <p class="login-footer-note">Authorised administrators only. Contact the Super Admin if you need access.</p>
+    </div>
+  </div>
+
   <div class="layout">
 
     <!-- MOBILE OVERLAY -->
@@ -825,6 +1027,11 @@
         </a>
       </nav>
       <div class="sidebar-footer">
+        <div id="adminUserEmail"></div>
+        <button id="logoutBtn" onclick="handleLogout()">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
         <a href="index.html"><svg viewBox="0 0 24 24">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
             <polyline points="9 22 9 12 15 12 15 22" />
@@ -1437,6 +1644,79 @@
     const auth = firebase.auth();
     const functions = firebase.functions();
     const storage = firebase.storage();
+
+    // ─── AUTH GATE ───
+    // Listen for auth state. Show login screen or dashboard accordingly.
+    auth.onAuthStateChanged(function(user) {
+      const loginScreen = document.getElementById('loginScreen');
+      const layout = document.querySelector('.layout');
+      if (user) {
+        // Logged in — hide login screen, show dashboard
+        loginScreen.classList.add('hidden');
+        setTimeout(() => { loginScreen.style.display = 'none'; }, 400);
+        layout.style.display = 'flex';
+        // Show user email in sidebar
+        const emailEl = document.getElementById('adminUserEmail');
+        if (emailEl) emailEl.textContent = user.email;
+        // Load all data
+        loadAllDataFromFirestore();
+      } else {
+        // Not logged in — show login screen, hide dashboard
+        loginScreen.style.display = 'flex';
+        loginScreen.classList.remove('hidden');
+        layout.style.display = 'none';
+      }
+    });
+
+    // Handle login form submission
+    async function handleLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const btn = document.getElementById('loginBtn');
+      const errorEl = document.getElementById('loginError');
+
+      if (!email || !password) {
+        errorEl.textContent = 'Please enter your email and password.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+      errorEl.style.display = 'none';
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        // onAuthStateChanged will handle showing the dashboard
+      } catch (error) {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+        let msg = 'An error occurred. Please try again.';
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+          msg = 'Incorrect email or password. Please try again.';
+        } else if (error.code === 'auth/invalid-email') {
+          msg = 'Please enter a valid email address.';
+        } else if (error.code === 'auth/too-many-requests') {
+          msg = 'Too many failed attempts. Please wait a moment and try again.';
+        }
+        errorEl.textContent = msg;
+        errorEl.style.display = 'block';
+      }
+    }
+
+    // Allow pressing Enter to submit the login form
+    document.getElementById('loginPassword').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleLogin();
+    });
+    document.getElementById('loginEmail').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleLogin();
+    });
+
+    // Handle logout
+    async function handleLogout() {
+      if (!confirm('Are you sure you want to sign out?')) return;
+      await auth.signOut();
+    }
 
     // ─── UPLOAD IMAGE TO FIREBASE STORAGE ───
     // Takes a base64 dataUrl, uploads to Firebase Storage, returns the public download URL.
@@ -2431,8 +2711,7 @@
     }
 
     // ─── INIT ───
-    // Load real data from Firestore first, then render
-    loadAllDataFromFirestore();
+    // Data is loaded by onAuthStateChanged after login — do NOT call loadAllDataFromFirestore() here directly.
   </script>
 </body>
 
