@@ -3240,6 +3240,512 @@
         padding: 28px 24px;
       }
     }
+
+    /* ─── SODE WEBAPP SHOWCASE & PHONE MOCKUP ─── */
+    .webapp-showcase-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 1000px;
+      width: 100%;
+    }
+
+    .phone-mockup {
+      width: 320px;
+      height: 640px;
+      background: #000;
+      border-radius: 40px;
+      border: 12px solid #1a1a1a;
+      box-shadow: 0 25px 50px -12px rgba(13, 27, 75, 0.4), 
+                  0 0 0 1px rgba(255,255,255,0.05),
+                  inset 0 0 3px 2px rgba(255,255,255,0.1);
+      position: relative;
+      overflow: hidden;
+      transform: rotateY(-5deg) rotateX(5deg);
+      transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s ease;
+      cursor: pointer;
+    }
+
+    .phone-mockup:hover {
+      transform: rotateY(0deg) rotateX(0deg) translateY(-10px);
+      box-shadow: 0 35px 60px -10px rgba(13, 27, 75, 0.55), 
+                  0 0 0 2px rgba(26, 58, 140, 0.25);
+    }
+
+    /* Notch / Dynamic Island */
+    .phone-notch {
+      width: 110px;
+      height: 24px;
+      background: #000;
+      border-radius: 20px;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+    }
+
+    .phone-notch::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: #111;
+      border-radius: 50%;
+      box-shadow: 0 0 1px 1px rgba(255,255,255,0.1);
+    }
+
+    .phone-notch::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #05051a;
+      border-radius: 50%;
+      border: 1.5px solid #111;
+    }
+
+    /* Screen container */
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #091338 0%, #070d24 100%);
+      font-family: var(--ff-body);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding: 40px 18px 20px;
+      box-sizing: border-box;
+      position: relative;
+      user-select: none;
+    }
+
+    /* Glossy reflection overlay */
+    .phone-screen::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 40%, transparent 40%);
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    /* Status Bar */
+    .phone-status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 20px;
+      padding: 0 4px;
+    }
+
+    .phone-status-icons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .phone-status-icons svg {
+      width: 12px;
+      height: 12px;
+      fill: currentColor;
+    }
+
+    /* App Header */
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .app-logo-text {
+      font-family: var(--ff-display);
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: 0.05em;
+      color: var(--gold-light);
+    }
+
+    .app-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--royal-soft);
+      border: 1px solid var(--gold);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Mock Content / Widgets */
+    .app-welcome {
+      margin-bottom: 18px;
+    }
+
+    .app-welcome h4 {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .app-welcome p {
+      font-family: var(--ff-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .mock-widget {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 14px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease, border-color 0.3s;
+    }
+
+    .mock-widget:hover {
+      border-color: rgba(184, 146, 42, 0.4);
+      transform: scale(1.02);
+    }
+
+    /* Growth widget */
+    .widget-progress {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      animation: floatWidget-1 5s ease-in-out infinite alternate;
+    }
+
+    .widget-progress-circle {
+      width: 48px;
+      height: 48px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .widget-progress-circle svg {
+      transform: rotate(-90deg);
+      width: 48px;
+      height: 48px;
+    }
+
+    .widget-progress-text {
+      position: absolute;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold-light);
+    }
+
+    .widget-progress-info h5 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .widget-progress-info p {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* Checklist Widget */
+    .widget-checklist {
+      animation: floatWidget-2 6s ease-in-out infinite alternate;
+      animation-delay: 0.5s;
+    }
+
+    .widget-checklist h5 {
+      font-size: 12px;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 11.5px;
+    }
+
+    .checklist-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .chk-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chk-icon.done {
+      background: rgba(46, 125, 50, 0.2);
+      color: #2e7d32;
+      border: 1px solid rgba(46, 125, 50, 0.4);
+    }
+
+    .chk-icon.pending {
+      background: rgba(184, 146, 42, 0.15);
+      color: var(--gold);
+      border: 1px solid rgba(184, 146, 42, 0.4);
+      animation: pulseIndicator 1.5s ease-in-out infinite alternate;
+    }
+
+    .checklist-item span.done-text {
+      color: rgba(255,255,255,0.4);
+      text-decoration: line-through;
+    }
+
+    .checklist-item span.pending-text {
+      color: rgba(255,255,255,0.85);
+      font-weight: 500;
+    }
+
+    /* Mentorship Widget */
+    .widget-mentorship {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: floatWidget-3 5.5s ease-in-out infinite alternate;
+      animation-delay: 1s;
+    }
+
+    .mentor-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mentor-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--royal-soft);
+      border: 1px solid rgba(255,255,255,0.15);
+      overflow: hidden;
+    }
+
+    .mentor-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .mentor-info h6 {
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .mentor-info p {
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .mentor-status {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: rgba(26, 58, 140, 0.3);
+      color: #7FA3E8;
+      border: 1px solid rgba(127,163,232,0.2);
+      font-weight: 500;
+    }
+
+    /* App mini cta */
+    .app-mini-cta {
+      margin-top: auto;
+      background: var(--royal);
+      color: #fff;
+      text-align: center;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      border: none;
+      box-shadow: 0 4px 15px rgba(26, 58, 140, 0.4);
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      z-index: 6;
+      text-decoration: none;
+    }
+
+    .app-mini-cta:hover {
+      background: var(--navy);
+      box-shadow: 0 6px 20px rgba(13, 27, 75, 0.5);
+      transform: translateY(-1px);
+    }
+
+    /* Keyframes animations */
+    @keyframes floatWidget-1 {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(-6px) rotate(0.5deg); }
+    }
+    @keyframes floatWidget-2 {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(-8px) rotate(-0.5deg); }
+    }
+    @keyframes floatWidget-3 {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(-5px) rotate(0.3deg); }
+    }
+    @keyframes pulseIndicator {
+      0% { box-shadow: 0 0 0 0 rgba(184, 146, 42, 0.4); }
+      100% { box-shadow: 0 0 0 4px rgba(184, 146, 42, 0); }
+    }
+
+    /* Webapp showcase section adjustments */
+    .register-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .app-cta-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(13, 27, 75, 0.05);
+    }
+
+    .app-cta-card h3 {
+      font-family: var(--ff-display);
+      font-size: 32px;
+      color: var(--navy);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .app-cta-card h3 em {
+      font-style: italic;
+      color: var(--royal);
+    }
+
+    .app-cta-card p {
+      font-size: 15px;
+      color: var(--gray-400);
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+
+    .app-features-list {
+      margin-bottom: 30px;
+    }
+
+    .app-feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .app-feature-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .app-feature-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--royal-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .app-feature-icon svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--royal);
+      fill: none;
+      stroke-width: 2.5;
+    }
+
+    .app-feature-content h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 2px;
+    }
+
+    .app-feature-content p {
+      font-size: 13px;
+      color: var(--gray-400);
+      line-height: 1.6;
+      margin-bottom: 0;
+    }
+
+    .webapp-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--royal-soft);
+      border-radius: 30px;
+      padding: 6px 14px;
+      margin-bottom: 18px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--royal);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      width: fit-content;
+    }
+
+    .webapp-badge svg {
+      animation: pulseWebappBadge 2s infinite alternate;
+    }
+
+    @keyframes pulseWebappBadge {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1.1); opacity: 1; }
+    }
+
+    /* Media query overrides */
+    @media (max-width: 900px) {
+      .register-grid {
+        grid-template-columns: 1fr !important;
+        gap: 48px;
+      }
+      .webapp-showcase-container {
+        order: 2; /* Mobile mockup flows below description on small screens */
+      }
+      .app-cta-card {
+        padding: 28px;
+      }
+    }
   </style>
 </head>
 
@@ -3274,7 +3780,7 @@
       <li><a href="#media">Media</a></li>
       <li><a href="#blog-teaser">Blog</a></li>
       <li><a href="#contact">Contact</a></li>
-      <li><a href="#register" class="nav-cta">Register</a></li>
+      <li><a href="https://app.thesode.org/" target="_blank" rel="noopener noreferrer" class="nav-cta">Launch App</a></li>
     </ul>
     <button class="hamburger" id="hamburger" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -3320,15 +3826,13 @@
       </div>
 
       <div class="hero-actions">
-        <a href="#register" class="btn-primary">
-          Register Now
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12" />
-            <polyline points="12 5 19 12 12 19" />
+        <a href="https://app.thesode.org/" target="_blank" rel="noopener noreferrer" class="btn-primary">
+          Register on Webapp
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 4px;">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
           </svg>
         </a>
-        <a href="#curriculum" class="btn-ghost">Explore Curriculum</a>
+        <a href="#register" class="btn-ghost">Explore SODE Webapp</a>
       </div>
     </div>
 
@@ -3397,7 +3901,7 @@
         <h2 class="section-title" style="margin-bottom:0;">What You <em>Will Learn</em></h2>
       </div>
       <div>
-        <a href="#register" class="btn-primary" style="padding: 12px 24px;">Register Now</a>
+        <a href="https://app.thesode.org/" target="_blank" rel="noopener noreferrer" class="btn-primary" style="padding: 12px 24px;">Get Started on Webapp</a>
       </div>
     </div>
     <p class="section-body reveal" style="margin-bottom:48px;transition-delay:0.1s;">A comprehensive curriculum designed
@@ -3428,10 +3932,9 @@
         </div>
         <!-- Dynamic Speaker/Profile (auto-animated) -->
         <div class="ue-speaker-wrap" id="ueSpeakerWrap" aria-label="Upcoming event speaker"></div>
-        <a href="#register" class="btn-primary ue-cta-big" style="width:100%;justify-content:center;margin-top:14px;">
-          Secure Your Spot
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
+        <a href="https://app.thesode.org/" target="_blank" rel="noopener noreferrer" class="btn-primary ue-cta-big" style="width:100%;justify-content:center;margin-top:14px;">
+          Register on SODE Webapp
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 4px;">
             <line x1="5" y1="12" x2="19" y2="12" />
             <polyline points="12 5 19 12 12 19" />
           </svg>
@@ -3530,72 +4033,145 @@
   <!-- REGISTER -->
   <section id="register">
     <div class="reveal">
-      <div class="section-label">Enrol Today</div>
+      <div class="section-label">SODE Webapp</div>
       <h2 class="section-title">Take the First Step Towards<br><em>Marketplace Dominion</em></h2>
     </div>
     <div class="register-grid">
-      <div class="register-form-wrap reveal">
-        <h3 style="font-family:var(--ff-display);font-size:22px;color:var(--navy);margin-bottom:24px;font-weight:600;">
-          Registration Form</h3>
-        <form id="sodeForm">
-          <div class="form-row">
-            <div class="form-group"><label>First Name</label><input type="text" name="firstName"
-                placeholder="e.g. Adaeze" required></div>
-            <div class="form-group"><label>Last Name</label><input type="text" name="lastName" placeholder="e.g. Okafor"
-                required></div>
+      
+      <!-- Left Column: CSS Phone Mockup of Webapp -->
+      <div class="webapp-showcase-container reveal">
+        <div class="phone-mockup" onclick="window.open('https://app.thesode.org/', '_blank')">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status-bar">
+              <span class="phone-time">9:41</span>
+              <div class="phone-status-icons">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M2 22h20V2z"/></svg>
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 21.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm-5.05-5.05a7.14 7.14 0 0 1 10.1 0l-1.42 1.42a5.13 5.13 0 0 0-7.26 0l-1.42-1.42zm-2.83-2.83a11.14 11.14 0 0 1 15.76 0l-1.42 1.42a9.13 9.13 0 0 0-12.92 0L4.12 13.62z"/></svg>
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M17 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm1 9h2v-4h-2v4z"/></svg>
+              </div>
+            </div>
+            
+            <div class="app-header">
+              <span class="app-logo-text">SODE App</span>
+              <div class="app-avatar">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--gold)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              </div>
+            </div>
+
+            <div class="app-welcome">
+              <h4>Welcome back,</h4>
+              <p>Daniel Covenant</p>
+            </div>
+
+            <!-- Widget 1: Circular Progress -->
+            <div class="mock-widget widget-progress">
+              <div class="widget-progress-circle">
+                <svg viewBox="0 0 36 36">
+                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
+                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--gold)" stroke-width="3" stroke-dasharray="78, 100"/>
+                </svg>
+                <span class="widget-progress-text">78%</span>
+              </div>
+              <div class="widget-progress-info">
+                <h5>Daniel Standard</h5>
+                <p>Module 2: Workplace Mastery</p>
+              </div>
+            </div>
+
+            <!-- Widget 2: Checklist -->
+            <div class="mock-widget widget-checklist">
+              <h5>My Milestones</h5>
+              <div class="checklist-item">
+                <div class="chk-icon done">✓</div>
+                <span class="done-text">Personal Brand Statement</span>
+              </div>
+              <div class="checklist-item">
+                <div class="chk-icon done">✓</div>
+                <span class="done-text">Kingdom identity clarity</span>
+              </div>
+              <div class="checklist-item">
+                <div class="chk-icon pending"></div>
+                <span class="pending-text">Drafting 5-Year Roadmap</span>
+              </div>
+            </div>
+
+            <!-- Widget 3: Mentorship -->
+            <div class="mock-widget widget-mentorship">
+              <div class="mentor-profile">
+                <div class="mentor-avatar">
+                  <img src="Mrs. Sam-Obioha.jpg.jpeg" alt="Mentor Mrs. Sam-Obioha">
+                </div>
+                <div class="mentor-info">
+                  <h6>Mrs. Sam-Obioha</h6>
+                  <p>Corporate Strategy</p>
+                </div>
+              </div>
+              <span class="mentor-status">Active Mentor</span>
+            </div>
+
+            <a href="https://app.thesode.org/" target="_blank" rel="noopener noreferrer" class="app-mini-cta">
+              Open Dashboard →
+            </a>
           </div>
-          <div class="form-group"><label>Phone Number</label><input type="tel" name="phone"
-              placeholder="+234 800 000 0000" required></div>
-          <div class="form-group"><label>Email Address</label><input type="email" name="email"
-              placeholder="you@example.com" required></div>
-          <div class="form-group"><label>Occupation / Industry</label><input type="text" name="occupation"
-              placeholder="e.g. Finance, Tech, Healthcare..." required></div>
-          <button type="submit" class="form-submit" id="submitBtn">Register Now →</button>
-          <div id="formMessage" style="margin-top:16px;text-align:center;font-size:14px;"></div>
-        </form>
+        </div>
       </div>
+
+      <!-- Right Column: SODE Webapp Launch Copy -->
       <div class="register-info reveal" style="transition-delay:0.15s;">
-        <div style="display:inline-flex; align-items:center; gap:8px; background:var(--royal-soft); border-radius:30px; padding:6px 14px; margin-bottom:18px;">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--royal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2"/></svg>
-          <span style="font-size:11px;font-weight:600;color:var(--royal);letter-spacing:0.07em;text-transform:uppercase;">Why Join</span>
+        <div class="webapp-badge">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 4px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          SODE Webapp Live
         </div>
-        <h3>Why Join <em>The SODE?</em></h3>
-        <p>This is more than a program - it's a movement of professionals committed to excellence, impact, and purpose-driven careers.</p>
+        
+        <h3 style="font-family:var(--ff-display);font-size:38px;color:var(--navy);margin-bottom:16px;font-weight:600;line-height:1.2;">
+          Welcome to the New<br><em>SODE Webapp! 🚀</em>
+        </h3>
+        
+        <p style="font-size:15px;color:var(--gray-400);line-height:1.8;margin-bottom:28px;">
+          The official School of Daniel and Esthers (SODE) Webapp is live! The platform is your digital companion to seamlessly track your training progress, set career and business milestones, and stay connected with our mentorship network.
+        </p>
 
-        <div class="benefits-grid">
-          <div class="benefit-card">
-            <div class="benefit-icon">
-              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <div class="app-features-list">
+          <div class="app-feature-item">
+            <div class="app-feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
-            <div class="benefit-card-title">Seasoned Mentors &amp; Industry Leaders</div>
-            <div class="benefit-card-desc">Direct access to seasoned voices shaping Nigeria's marketplace.</div>
+            <div class="app-feature-content">
+              <h4>Kingdom Consciousness &amp; Excellence</h4>
+              <p>Equipping you with practical tools to dominate your industry and establish God's agenda.</p>
+            </div>
           </div>
-          <div class="benefit-card">
-            <div class="benefit-icon">
-              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          
+          <div class="app-feature-item">
+            <div class="app-feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
-            <div class="benefit-card-title">World-Class Curriculum</div>
-            <div class="benefit-card-desc">Sales, leadership, AI, capital &amp; more - crafted for the kingdom professional.</div>
+            <div class="app-feature-content">
+              <h4>Biblical Truths</h4>
+              <p>Accelerating your career growth using proven strategies from Daniel, Joseph, and Esther.</p>
+            </div>
           </div>
-          <div class="benefit-card">
-            <div class="benefit-icon">
-              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+
+          <div class="app-feature-item">
+            <div class="app-feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
-            <div class="benefit-card-title">A Thriving Community</div>
-            <div class="benefit-card-desc">Join a growing network of like-minded, purpose-driven professionals.</div>
-          </div>
-          <div class="benefit-card">
-            <div class="benefit-icon">
-              <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            <div class="app-feature-content">
+              <h4>Active Mentorship &amp; Milestones</h4>
+              <p>Set strategic milestones and connect with mentors who sharpen and guide your journey.</p>
             </div>
-            <div class="benefit-card-title">Rapid Growth &amp; Transformation</div>
-            <div class="benefit-card-desc">Accelerate your career trajectory and build a business that lasts.</div>
           </div>
         </div>
 
+        <div style="background: var(--off-white); border: 1.5px dashed var(--gray-200); padding: 18px; border-radius: 12px; margin-bottom: 28px; font-size: 13.5px; color: var(--gray-700); line-height: 1.6;">
+          <strong>Next Step:</strong> Visit <strong>app.thesode.org</strong>, register using your existing email address, and explore your new personalized dashboard.
+        </div>
+
+        <a href="https://app.thesode.org/" target="_blank" rel="noopener noreferrer" class="btn-primary" style="padding: 16px 36px; font-size: 15px; border-radius: 10px; box-shadow: 0 10px 24px rgba(26,58,140,0.15);">
+          Get Started on SODE Webapp →
+        </a>
       </div>
-    </div>
-  </section>
 
   <!-- CONTACT -->
   <section id="contact">
@@ -3807,7 +4383,7 @@
             <li><a href="#events">Events</a></li>
             <li><a href="#media">Media</a></li>
             <li><a href="blog.html">Blog & Podcast</a></li>
-            <li><a href="#register">Register</a></li>
+            <li><a href="https://app.thesode.org/" target="_blank" rel="noopener noreferrer">Register</a></li>
           </ul>
         </div>
         <div class="footer-col">
@@ -4011,7 +4587,7 @@
               </div>
             </div>
             <div class="flyer-cta-row">
-              <a href="#register" class="btn-primary" style="padding:12px 26px;font-size:13px;">Register Now</a>
+              <a href="https://app.thesode.org/" target="_blank" rel="noopener noreferrer" class="btn-primary" style="padding:12px 26px;font-size:13px;">Register on Webapp</a>
               <a href="#events" class="btn-ghost" style="padding:12px 22px;font-size:13px;">View All Events</a>
             </div>
           </div>
@@ -4047,7 +4623,7 @@
             </div>
             <div class="flyer-cta-row">
               <a href="#events" class="btn-primary" style="padding:12px 26px;font-size:13px;">View Event Details</a>
-              <a href="#register" class="btn-ghost" style="padding:12px 22px;font-size:13px;">Register Now</a>
+              <a href="https://app.thesode.org/" target="_blank" rel="noopener noreferrer" class="btn-ghost" style="padding:12px 22px;font-size:13px;">Register on Webapp</a>
             </div>
           </div>
         </div>`;
@@ -4632,50 +5208,7 @@
     // --- REGISTRATION FORM ---
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRvgbHVX-DlUwskcR9Hu_4AkLXBgoJbyVcUlgeH4pBEcsI_R1Xuqch55XIDmAXb2Pb/exec';
 
-document.getElementById('sodeForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const btn = document.getElementById('submitBtn');
-  const msg = document.getElementById('formMessage');
-
-  btn.disabled = true;
-  btn.textContent = 'Submitting...';
-  msg.innerHTML = '';
-
-  try {
-    const formData = new FormData(e.target);
-
-    const response = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: new URLSearchParams(formData).toString(),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    });
-
-    const result = await response.json();
-
-    if (result.result === 'success') {
-      msg.innerHTML = "<span style='color:#2e7d32;'>✅ Registration successful!</span>";
-      e.target.reset();
-
-      btn.textContent = 'Registered ✓';
-      btn.style.background = '#0D1B4B';
-
-    } else {
-      msg.innerHTML = `<span style='color:#c62828;'>❌ ${result.message}</span>`;
-      btn.disabled = false;
-      btn.textContent = 'Register Now →';
-    }
-
-  } catch (error) {
-    console.error(error);
-
-    msg.innerHTML = "<span style='color:#c62828;'>⚠️ Network error. Please try again.</span>";
-    btn.disabled = false;
-    btn.textContent = 'Register Now →';
-  }
-});
+// Local registration form removed - registrations are now directed to app.thesode.org
 
    // --- CONTACT FORM (UPDATED: sends to Apps Script) ---
 document.getElementById('contactForm').addEventListener('submit', async (e) => {
