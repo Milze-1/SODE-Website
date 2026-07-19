@@ -3778,7 +3778,98 @@
         padding: 28px;
       }
     }
-  </style>
+  
+
+    /* ......... COOKIE CONSENT BANNER ......... */
+    .cookie-banner {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      max-width: 400px;
+      background: rgba(13, 27, 75, 0.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(184, 146, 42, 0.2);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 12px 32px rgba(13, 27, 75, 0.25);
+      z-index: 10001;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transform: translateY(150%);
+      opacity: 0;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s;
+    }
+
+    .cookie-banner.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .cookie-content {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .cookie-icon {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .cookie-content p {
+      color: var(--off-white);
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .cookie-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .cookie-btn {
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .cookie-accept {
+      background: var(--gold);
+      color: var(--navy);
+    }
+
+    .cookie-accept:hover {
+      background: #cba232;
+      transform: translateY(-1px);
+    }
+
+    .cookie-decline {
+      background: transparent;
+      color: var(--gray-400);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .cookie-decline:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--off-white);
+    }
+
+    @media (max-width: 480px) {
+      .cookie-banner {
+        bottom: 16px;
+        left: 16px;
+        right: 16px;
+        max-width: none;
+      }
+    }
+</style>
 </head>
 
 <body>
@@ -3805,7 +3896,9 @@
   <!-- NAV -->
   <nav id="navbar">
     <div class="nav-logo">
-      <img src="Images/SODE_Colored Vertical Lockup (Head).png" alt="School of Daniels and Esthers">
+      <a href="#home" style="display: block; border-bottom: none !important;">
+        <img src="Images/SODE_Colored Vertical Lockup (Head).png" alt="School of Daniels and Esthers">
+      </a>
     </div>
     <ul class="nav-links" id="navLinks">
       <li><a href="#home">Home</a></li>
@@ -5250,6 +5343,31 @@
     if (backdrop) backdrop.addEventListener('click', closeMenu);
     navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
 
+    // --- COOKIE BANNER ---
+    (function initCookies() {
+      const banner = document.getElementById('cookieBanner');
+      const acceptBtn = document.getElementById('cookieAccept');
+      const declineBtn = document.getElementById('cookieDecline');
+      if (!banner) return;
+
+      const consent = localStorage.getItem('sode_cookie_consent');
+      if (consent) return;
+
+      setTimeout(() => {
+        banner.classList.add('show');
+      }, 1500);
+
+      acceptBtn.addEventListener('click', () => {
+        localStorage.setItem('sode_cookie_consent', 'accepted');
+        banner.classList.remove('show');
+      });
+
+      declineBtn.addEventListener('click', () => {
+        localStorage.setItem('sode_cookie_consent', 'declined');
+        banner.classList.remove('show');
+      });
+    })();
+
     // --- SCROLL REVEAL ---
     function reObserve() {
       const reveals = document.querySelectorAll('.reveal:not(.visible)');
@@ -5344,6 +5462,25 @@ document.getElementById('contactForm').addEventListener('submit', async (e) => {
       reObserve();
     })();
   </script>
+<!-- COOKIE CONSENT BANNER -->
+  <div id="cookieBanner" class="cookie-banner">
+    <div class="cookie-content">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cookie-icon">
+        <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5" />
+        <circle cx="8.5" cy="8.5" r="1" fill="var(--gold)" />
+        <circle cx="12" cy="12" r="1" fill="var(--gold)" />
+        <circle cx="16" cy="15.5" r="1" fill="var(--gold)" />
+        <circle cx="11" cy="16" r="1" fill="var(--gold)" />
+        <circle cx="7.5" cy="13.5" r="1" fill="var(--gold)" />
+      </svg>
+      <p>We use cookies to enhance your experience. By continuing to visit this site, you agree to our use of cookies.</p>
+    </div>
+    <div class="cookie-actions">
+      <button class="cookie-btn cookie-decline" id="cookieDecline">Decline</button>
+      <button class="cookie-btn cookie-accept" id="cookieAccept">Accept</button>
+    </div>
+  </div>
+
 </body>
 
 </html>
