@@ -1870,42 +1870,54 @@
         name: "Pastor Okey Eze",
         role: "Lead Facilitator, SODE",
         bio: "A seasoned leader in kingdom marketplace ministry, guiding professionals to integrate faith with career excellence. His teaching on the Daniel standard has reshaped careers across Nigeria.",
-        photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80"
+        module: "Module 1 \u00b7 Kingdom Identity",
+        date: "April 12, 2026",
+        photo: ""
       },
       {
         id: 2,
         name: "Mrs. Kemi Okusanya",
         role: "CEO, Hydrogen Payments Services Limited",
         bio: "A leading figure in Nigeria’s payments industry who has built and scaled one of the country’s most respected fintech institutions. She brings practical excellence frameworks drawn from decades of boardroom experience.",
-        photo: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80"
+        module: "Module 1 \u00b7 Personal Excellence",
+        date: "April 19, 2026",
+        photo: "Images/Hydrogen-Payment-Services-Limited-CEO-Kemi-Okusanya-646x375.webp"
       },
       {
         id: 3,
         name: "Wonuola Adetayo",
         role: "Founder & CEO, SoftSkills Limited",
         bio: "Harvard Kennedy School alumna and Africa’s foremost human capital developer. Wonuola has trained thousands of professionals across the continent to build relationships that open extraordinary doors.",
-        photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&q=80"
+        module: "Module 2 \u00b7 Career & Networking",
+        date: "May 24, 2026",
+        photo: ""
       },
       {
         id: 4,
         name: "Mr. Michael Thomas",
         role: "CEO, United Capital Trustees Limited",
         bio: "A distinguished executive whose approach to strategic leadership has shaped institutions across Nigeria’s financial sector. He brings a rare combination of corporate rigour and servant-leadership principles.",
-        photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80"
+        module: "Module 3 \u00b7 Leadership",
+        date: "June 7, 2026",
+        photo: "Images/Michael-Abiodun-Thomas-1024x1024.jpg"
       },
       {
         id: 5,
         name: "Prof. Konyinsola Ajayi",
         role: "SAN · Chairman, Olaniwun Ajayi LP",
         bio: "One of Nigeria’s most distinguished Senior Advocates, Professor Ajayi has built an empire of influence through quiet excellence, deep expertise, and a commitment to raising the next generation of leaders.",
-        photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&q=80"
+        module: "Module 3 \u00b7 Building Influence",
+        date: "June 14, 2026",
+        photo: "Images/olayinwu ajayi.png"
       },
       {
         id: 6,
         name: "Iyinoluwa Aboyeji",
         role: "Founder, Future Africa Fund",
         bio: "Co-founder of Andela and Flutterwave, two of Africa’s most transformational tech companies. Iyin now channels his experience into backing Africa’s most promising founders through Future Africa.",
-        photo: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&q=80"
+        module: "Module 5 \u00b7 Raising Capital",
+        date: "August 16, 2026",
+        photo: ""
       }
     ];
 
@@ -2362,7 +2374,16 @@
 
       const speakers = getSpeakers();
       const nextId = speakers.reduce((m, s) => Math.max(m, Number(s.id) || 0), 0) + 1;
-      const speaker = { id: editId ? Number(editId) : nextId, name, role, bio, photo };
+      const existing = editId ? speakers.find(s => String(s.id) === String(editId)) : null;
+      const speaker = { 
+        id: editId ? Number(editId) : nextId, 
+        name, 
+        role, 
+        bio, 
+        photo,
+        module: existing ? (existing.module || '') : '',
+        date: existing ? (existing.date || '') : ''
+      };
 
       if (editId) {
         const idx = speakers.findIndex(s => String(s.id) === String(editId));

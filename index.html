@@ -4640,7 +4640,7 @@
         bio: "A seasoned leader in kingdom marketplace ministry, guiding professionals to integrate faith with career excellence. His teaching on the Daniel standard has reshaped careers across Nigeria.",
         module: "Module 1 \u00b7 Kingdom Identity",
         date: "April 12, 2026",
-        photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80"
+        photo: ""
       },
       {
         id: 2,
@@ -4649,7 +4649,7 @@
         bio: "A leading figure in Nigeria\u2019s payments industry who has built and scaled one of the country\u2019s most respected fintech institutions. She brings practical excellence frameworks drawn from decades of boardroom experience.",
         module: "Module 1 \u00b7 Personal Excellence",
         date: "April 19, 2026",
-        photo: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80"
+        photo: "Images/Hydrogen-Payment-Services-Limited-CEO-Kemi-Okusanya-646x375.webp"
       },
       {
         id: 3,
@@ -4658,7 +4658,7 @@
         bio: "Harvard Kennedy School alumna and Africa\u2019s foremost human capital developer. Wonuola has trained thousands of professionals across the continent to build relationships that open extraordinary doors.",
         module: "Module 2 \u00b7 Career & Networking",
         date: "May 24, 2026",
-        photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&q=80"
+        photo: ""
       },
       {
         id: 4,
@@ -4667,7 +4667,7 @@
         bio: "A distinguished executive whose approach to strategic leadership has shaped institutions across Nigeria\u2019s financial sector. He brings a rare combination of corporate rigour and servant-leadership principles.",
         module: "Module 3 \u00b7 Leadership",
         date: "June 7, 2026",
-        photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80"
+        photo: "Images/Michael-Abiodun-Thomas-1024x1024.jpg"
       },
       {
         id: 5,
@@ -4676,7 +4676,7 @@
         bio: "One of Nigeria\u2019s most distinguished Senior Advocates, Professor Ajayi has built an empire of influence through quiet excellence, deep expertise, and a commitment to raising the next generation of leaders.",
         module: "Module 3 \u00b7 Building Influence",
         date: "June 14, 2026",
-        photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&q=80"
+        photo: "Images/olayinwu ajayi.png"
       },
       {
         id: 6,
@@ -4685,7 +4685,7 @@
         bio: "Co-founder of Andela and Flutterwave, two of Africa\u2019s most transformational tech companies. Iyin now channels his experience into backing Africa\u2019s most promising founders through Future Africa.",
         module: "Module 5 \u00b7 Raising Capital",
         date: "August 16, 2026",
-        photo: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&q=80"
+        photo: ""
       }
     ];
 
@@ -4719,7 +4719,19 @@
         if (isFlipped) { isFlipped = false; const card = document.getElementById('spkFlipCard'); if (card) card.classList.remove('flipped'); }
         setTimeout(() => {
           const img = document.getElementById('spkPhoto');
-          if (img) { img.style.opacity = '0'; img.src = s.photo; img.onload = () => { img.style.transition = 'opacity 0.6s ease'; img.style.opacity = '1'; }; }
+          if (img) {
+            img.style.opacity = '0';
+            img.src = s.photo || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            img.onload = () => {
+              if (s.photo) {
+                img.style.transition = 'opacity 0.6s ease';
+                img.style.opacity = '1';
+              } else {
+                img.style.opacity = '0';
+              }
+            };
+            img.onerror = () => { img.style.opacity = '0'; };
+          }
           setText('spkPhotoName', s.name); setText('spkPhotoRole', s.role);
           setText('spkBackModule', s.module); setText('spkBackName', s.name); setText('spkBackRole', s.role); setText('spkBackBio', s.bio); setText('spkBackDate', 'Speaking ' + s.date);
           setText('spkCount', String(idx + 1).padStart(2, '0') + ' / ' + String(speakers.length).padStart(2, '0'));
@@ -4911,7 +4923,15 @@
       function populate(s) {
         // Front
         const img = $('ueImg');
-        if (img) { img.style.opacity = '0'; img.src = s.photo || ''; img.onload = () => img.style.opacity = '1'; img.onerror = () => img.style.opacity = '0.3'; }
+        if (img) {
+          img.style.opacity = '0';
+          img.src = s.photo || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+          img.onload = () => {
+            if (s.photo) img.style.opacity = '1';
+            else img.style.opacity = '0';
+          };
+          img.onerror = () => { img.style.opacity = '0'; };
+        }
         setText('ueTopic',    s.module);
         setText('ueName',     s.name);
         setText('ueRole',     s.role);
@@ -5175,8 +5195,14 @@
     window.addEventListener('scroll', () => { navbar.classList.toggle('scrolled', window.scrollY > 20); });
     const hamburger = document.getElementById('hamburger');
     const navLinks  = document.getElementById('navLinks');
-    hamburger.addEventListener('click', () => navLinks.classList.toggle('open'));
-    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      navLinks.classList.toggle('open');
+    });
+    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      navLinks.classList.remove('open');
+    }));
 
     // --- SCROLL REVEAL ---
     function reObserve() {
