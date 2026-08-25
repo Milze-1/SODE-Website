@@ -1406,7 +1406,7 @@
         <div class="form-group">
           <label>Photo (Upload or URL)</label>
           <div style="display:flex;gap:10px;">
-            <input type="text" id="speakerPhoto" placeholder="https://... or Images/... (or base64)" style="flex:1;">
+            <input type="text" id="speakerPhoto" placeholder="https://... or Images/..." style="flex:1;">
             <label class="btn btn-ghost" style="margin:0;cursor:pointer;display:flex;align-items:center;padding:0 12px;font-size:12px;">
               Upload
               <input type="file" id="speakerPhotoFile" accept="image/*" style="display:none;" onchange="handleSpeakerImageUpload(this)">
@@ -1647,10 +1647,16 @@
 
     // ─── AUTH GATE ───
     // Listen for auth state. Show login screen or dashboard accordingly.
-    auth.onAuthStateChanged(function(user) {
+    auth.onAuthStateChanged(async function(user) {
       const loginScreen = document.getElementById('loginScreen');
       const layout = document.querySelector('.layout');
       if (user) {
+        // Force a fresh ID token so a newly-granted admin/superadmin role claim
+        // is actually present before any Firestore/Storage write is attempted.
+        // Without this, writes silently fail as permission-denied until the
+        // token happens to refresh on its own (up to ~1hr later).
+        try { await user.getIdToken(true); } catch (e) { console.error('Token refresh failed:', e); }
+
         // Logged in — hide login screen, show dashboard
         loginScreen.classList.add('hidden');
         setTimeout(() => { loginScreen.style.display = 'none'; }, 400);
@@ -1942,10 +1948,48 @@
     function getModules() { return _cachedModules || DEFAULT_MODULES; }
     function getSpeakers() { return _cachedSpeakers || DEFAULT_SPEAKERS; }
 
+    // ─── DATA INTEGRITY GUARDS ───
+    // Firestore documents cap out at 1 MiB. Embedding a base64 image data URL
+    // into an item is what pushes a collection doc over that limit and makes
+    // EVERY future save to that collection fail silently. Never let one through.
+    function isDataUrlImage(value) {
+      return typeof value === 'string' && value.slice(0, 11) === 'data:image/';
+    }
+
+    // Atomically read-modify-write a sode_data/{docName} document inside a
+    // Firestore transaction. This reads the CURRENT server state (not a
+    // possibly stale in-memory cache) and commits the mutation atomically, so
+    // two admin sessions editing the same collection can't silently stomp on
+    // each other's changes (last-write-wins data loss). `mutate` receives a
+    // mutable copy of the items array; it may mutate it in place and/or
+    // return a replacement array.
+    async function updateCollection(docName, mutate) {
+      const ref = db.collection('sode_data').doc(docName);
+      let result;
+      await db.runTransaction(async (tx) => {
+        const snap = await tx.get(ref);
+        const items = (snap.exists && Array.isArray(snap.data().items)) ? snap.data().items.slice() : [];
+        const returned = mutate(items);
+        result = Array.isArray(returned) ? returned : items;
+        tx.set(ref, { items: result });
+      });
+      return result;
+    }
+
+    // Full-array overwrite — only for deliberate bulk actions (e.g. "Reset to
+    // defaults"). Individual add/edit/delete flows must use updateCollection
+    // above instead, so they never blow away concurrent changes.
+    async function overwriteCollection(docName, items) {
+      await db.collection('sode_data').doc(docName).set({ items });
+    }
+
     // ─── FIRESTORE SAVE FUNCTIONS ───
+    // Used only by resetAllData's deliberate bulk overwrite. Errors are
+    // intentionally rethrown (not swallowed) so the caller can tell the admin
+    // the save actually failed instead of showing a false "success" toast.
     async function saveSpeakers(data) {
+      await overwriteCollection('speakers', data);
       _cachedSpeakers = data;
-      try { await db.collection('sode_data').doc('speakers').set({ items: data }); } catch(e) { console.error('saveSpeakers:', e); }
     }
 
     function generateAutoEventsSeed() {
@@ -1993,24 +2037,24 @@
     function getFlyers() { return _cachedFlyers || DEFAULT_FLYERS; }
 
     async function saveModules(data) {
+      await overwriteCollection('modules', data);
       _cachedModules = data;
-      try { await db.collection('sode_data').doc('modules').set({ items: data }); } catch(e) { console.error('saveModules:', e); }
     }
     async function saveEvents(data) {
+      await overwriteCollection('events', data);
       _cachedEvents = data;
-      try { await db.collection('sode_data').doc('events').set({ items: data }); } catch(e) { console.error('saveEvents:', e); }
     }
     async function saveBlogs(data) {
+      await overwriteCollection('blogs', data);
       _cachedBlogs = data;
-      try { await db.collection('sode_data').doc('blogs').set({ items: data }); } catch(e) { console.error('saveBlogs:', e); }
     }
     async function saveMedia(data) {
+      await overwriteCollection('media', data);
       _cachedMedia = data;
-      try { await db.collection('sode_data').doc('media').set({ items: data }); } catch(e) { console.error('saveMedia:', e); }
     }
     async function saveFlyers(data) {
+      await overwriteCollection('flyers', data);
       _cachedFlyers = data;
-      try { await db.collection('sode_data').doc('flyers').set({ items: data }); } catch(e) { console.error('saveFlyers:', e); }
     }
 
     // ─── LOAD ALL DATA FROM FIRESTORE ON STARTUP ───
@@ -2037,6 +2081,11 @@
         _cachedBlogs = DEFAULT_BLOGS;
         _cachedMedia = DEFAULT_MEDIA;
         _cachedFlyers = DEFAULT_FLYERS;
+        // Showing defaults here is a fallback for display only — saves still
+        // transact against the real Firestore document, so this does not
+        // risk overwriting real data. But the admin needs to know the load
+        // failed, or they may think content is missing and re-add it.
+        toast('Could not load saved content — showing defaults. Reload the page before making changes.', 'error');
       }
       renderDashboard(); renderModules(); renderEvents(); renderBlogs(); renderMediaAdmin(); renderSpeakers(); renderFlyersAdmin();
     }
@@ -2165,8 +2214,10 @@
           toast('Image uploaded! ✓');
         } catch(e) {
           console.error('Upload failed:', e);
-          document.getElementById('flyerImage').value = dataUrl;
-          toast('Upload failed — image may not persist.', 'error');
+          // Do NOT fall back to the raw base64 dataUrl — embedding it in
+          // Firestore is what silently breaks saves once the doc hits 1MiB.
+          document.getElementById('flyerImage').value = '';
+          toast('Upload failed — please try again before saving.', 'error');
         }
       });
     }
@@ -2186,18 +2237,30 @@
         location: document.getElementById('flyerLocation').value.trim(),
         image: document.getElementById('flyerImage').value.trim()
       };
-      const flyers = getFlyers();
-      if (idx !== '') flyers[idx] = f;
-      else flyers.push(f);
-      await saveFlyers(flyers);
-      closeModal('flyerModal');
-      renderFlyersAdmin(); renderDashboard(); toast(idx !== '' ? 'Flyer updated' : 'Flyer added');
+      if (isDataUrlImage(f.image)) { toast('Image upload did not finish — please re-upload the image before saving.', 'error'); return; }
+      try {
+        const updated = await updateCollection('flyers', (items) => {
+          if (idx !== '') items[parseInt(idx)] = f; else items.push(f);
+        });
+        _cachedFlyers = updated;
+        closeModal('flyerModal');
+        renderFlyersAdmin(); renderDashboard(); toast(idx !== '' ? 'Flyer updated' : 'Flyer added');
+      } catch (e) {
+        console.error('saveFlyerItem failed:', e);
+        toast('Save failed — your changes were not stored. ' + (e.message || ''), 'error');
+      }
     }
 
     async function deleteFlyer(idx) {
       if (!confirm('Are you sure you want to delete this flyer?')) return;
-      const flyers = getFlyers(); flyers.splice(idx, 1);
-      await saveFlyers(flyers); renderFlyersAdmin(); renderDashboard(); toast('Flyer deleted');
+      try {
+        const updated = await updateCollection('flyers', (items) => { items.splice(idx, 1); });
+        _cachedFlyers = updated;
+        renderFlyersAdmin(); renderDashboard(); toast('Flyer deleted');
+      } catch (e) {
+        console.error('deleteFlyer failed:', e);
+        toast('Delete failed. ' + (e.message || ''), 'error');
+      }
     }
 
     // ─── MODULES ───
@@ -2249,28 +2312,40 @@
       const outcomes = getFieldValues('outcomesList');
       const sessions = getFieldValues('sessionsList');
       if (!id || !title) { toast('Please fill in the module number and title.', 'error'); return; }
-      const modules = getModules();
       const editId = document.getElementById('moduleEditId').value;
       const newModule = { id, title, foundations, outcomes, sessions, application, youtube: youtube || undefined };
-      if (editId) {
-        const idx = modules.findIndex(m => m.id == editId);
-        if (idx >= 0) modules[idx] = { ...modules[idx], ...newModule }; else modules.push(newModule);
-      } else {
-        if (modules.find(m => m.id === id)) { toast('A module with that number already exists.', 'error'); return; }
-        modules.push(newModule);
-        modules.sort((a, b) => a.id - b.id);
+      try {
+        const updated = await updateCollection('modules', (items) => {
+          if (editId) {
+            const idx = items.findIndex(m => m.id == editId);
+            if (idx >= 0) items[idx] = { ...items[idx], ...newModule }; else items.push(newModule);
+          } else {
+            if (items.find(m => m.id === id)) throw new Error('A module with that number already exists.');
+            items.push(newModule);
+            items.sort((a, b) => a.id - b.id);
+          }
+        });
+        _cachedModules = updated;
+        closeModal('moduleModal');
+        renderModules();
+        toast('Module saved successfully!');
+      } catch (e) {
+        console.error('saveModule failed:', e);
+        toast(e.message && e.message.includes('already exists') ? e.message : 'Save failed — your changes were not stored. ' + (e.message || ''), 'error');
       }
-      await saveModules(modules);
-      closeModal('moduleModal');
-      renderModules();
-      toast('Module saved successfully!');
     }
 
     async function deleteModule(id) {
       if (!confirm('Delete this module? This cannot be undone.')) return;
-      await saveModules(getModules().filter(m => m.id !== id));
-      renderModules();
-      toast('Module deleted.');
+      try {
+        const updated = await updateCollection('modules', (items) => items.filter(m => m.id !== id));
+        _cachedModules = updated;
+        renderModules();
+        toast('Module deleted.');
+      } catch (e) {
+        console.error('deleteModule failed:', e);
+        toast('Delete failed. ' + (e.message || ''), 'error');
+      }
     }
 
     // ─── SPEAKERS ───
@@ -2357,9 +2432,10 @@
           toast('Photo uploaded! ✓');
         } catch(e) {
           console.error('Upload failed:', e);
-          // Fallback: keep the dataUrl (will hit size limits)
-          document.getElementById('speakerPhoto').value = dataUrl;
-          toast('Upload failed — image may not persist.', 'error');
+          // Do NOT fall back to the raw base64 dataUrl — embedding it in
+          // Firestore is what silently breaks saves once the doc hits 1MiB.
+          document.getElementById('speakerPhoto').value = '';
+          toast('Upload failed — please try again before saving.', 'error');
         }
       });
     }
@@ -2371,46 +2447,55 @@
       const bio = document.getElementById('speakerBio').value.trim();
       const photo = document.getElementById('speakerPhoto').value.trim();
       if (!name) { toast('Please enter the speaker name.', 'error'); return; }
+      if (isDataUrlImage(photo)) { toast('Photo upload did not finish — please re-upload the photo before saving.', 'error'); return; }
 
-      const speakers = getSpeakers();
-      const nextId = speakers.reduce((m, s) => Math.max(m, Number(s.id) || 0), 0) + 1;
-      const existing = editId ? speakers.find(s => String(s.id) === String(editId)) : null;
-      const speaker = { 
-        id: editId ? Number(editId) : nextId, 
-        name, 
-        role, 
-        bio, 
-        photo,
-        module: existing ? (existing.module || '') : '',
-        date: existing ? (existing.date || '') : ''
-      };
-
-      if (editId) {
-        const idx = speakers.findIndex(s => String(s.id) === String(editId));
-        if (idx >= 0) speakers[idx] = speaker; else speakers.push(speaker);
-      } else {
-        speakers.push(speaker);
+      try {
+        const updated = await updateCollection('speakers', (items) => {
+          const existing = editId ? items.find(s => String(s.id) === String(editId)) : null;
+          const nextId = editId ? Number(editId) : (items.reduce((m, s) => Math.max(m, Number(s.id) || 0), 0) + 1);
+          const speaker = {
+            id: nextId,
+            name,
+            role,
+            bio,
+            photo,
+            module: existing ? (existing.module || '') : '',
+            date: existing ? (existing.date || '') : ''
+          };
+          const idx = editId ? items.findIndex(s => String(s.id) === String(editId)) : -1;
+          if (idx >= 0) items[idx] = speaker; else items.push(speaker);
+        });
+        _cachedSpeakers = updated;
+        closeModal('speakerModal');
+        renderSpeakers();
+        renderSpeakerSelectOptions();
+        renderEvents();
+        renderDashboard();
+        toast('Speaker saved successfully!');
+      } catch (e) {
+        console.error('saveSpeaker failed:', e);
+        toast('Save failed — your changes were not stored. ' + (e.message || ''), 'error');
       }
-
-      await saveSpeakers(speakers);
-      closeModal('speakerModal');
-      renderSpeakers();
-      renderSpeakerSelectOptions();
-      renderEvents();
-      renderDashboard();
-      toast('Speaker saved successfully!');
     }
 
     async function deleteSpeaker(id) {
       if (!confirm('Delete this speaker?')) return;
-      const speakers = getSpeakers().filter(s => String(s.id) !== String(id));
-      const events = getEvents().map(ev => (String(ev.speakerId) === String(id) ? { ...ev, speakerId: '' } : ev));
-      await Promise.all([saveSpeakers(speakers), saveEvents(events)]);
-      renderSpeakers();
-      renderSpeakerSelectOptions();
-      renderEvents();
-      renderDashboard();
-      toast('Speaker deleted.');
+      try {
+        const updatedSpeakers = await updateCollection('speakers', (items) => items.filter(s => String(s.id) !== String(id)));
+        const updatedEvents = await updateCollection('events', (items) => {
+          items.forEach(ev => { if (String(ev.speakerId) === String(id)) ev.speakerId = ''; });
+        });
+        _cachedSpeakers = updatedSpeakers;
+        _cachedEvents = updatedEvents;
+        renderSpeakers();
+        renderSpeakerSelectOptions();
+        renderEvents();
+        renderDashboard();
+        toast('Speaker deleted.');
+      } catch (e) {
+        console.error('deleteSpeaker failed:', e);
+        toast('Delete failed. ' + (e.message || ''), 'error');
+      }
     }
 
     // ─── EVENTS ───
@@ -2468,22 +2553,33 @@
       const month = months[d.getMonth()];
       const tagStyle = tagType === 'gold' ? 'background:var(--gold-light);color:var(--gold);' : '';
       const newEvent = { day, month, title, speakerId: speakerId || '', location, tag: tag || 'Regular Class', tagStyle, date: dt, duration };
-      const events = getEvents();
       const editIdx = document.getElementById('eventEditIdx').value;
-      if (editIdx !== '') events[parseInt(editIdx)] = newEvent;
-      else { events.push(newEvent); events.sort((a, b) => new Date(a.date) - new Date(b.date)); }
-      await saveEvents(events);
-      closeModal('eventModal');
-      renderEvents();
-      renderDashboard();
-      toast('Event saved successfully!');
+      try {
+        const updated = await updateCollection('events', (items) => {
+          if (editIdx !== '') items[parseInt(editIdx)] = newEvent;
+          else { items.push(newEvent); items.sort((a, b) => new Date(a.date) - new Date(b.date)); }
+        });
+        _cachedEvents = updated;
+        closeModal('eventModal');
+        renderEvents();
+        renderDashboard();
+        toast('Event saved successfully!');
+      } catch (e) {
+        console.error('saveEvent failed:', e);
+        toast('Save failed — your changes were not stored. ' + (e.message || ''), 'error');
+      }
     }
 
     async function deleteEvent(idx) {
       if (!confirm('Delete this event?')) return;
-      const events = getEvents(); events.splice(idx, 1);
-      await saveEvents(events);
-      renderEvents(); toast('Event deleted.');
+      try {
+        const updated = await updateCollection('events', (items) => { items.splice(idx, 1); });
+        _cachedEvents = updated;
+        renderEvents(); toast('Event deleted.');
+      } catch (e) {
+        console.error('deleteEvent failed:', e);
+        toast('Delete failed. ' + (e.message || ''), 'error');
+      }
     }
 
     // ─── BLOGS ───
@@ -2547,8 +2643,10 @@
           toast('Image uploaded! ✓');
         } catch(e) {
           console.error('Upload failed:', e);
-          document.getElementById('blogImage').value = dataUrl;
-          toast('Upload failed — image may not persist.', 'error');
+          // Do NOT fall back to the raw base64 dataUrl — embedding it in
+          // Firestore is what silently breaks saves once the doc hits 1MiB.
+          document.getElementById('blogImage').value = '';
+          toast('Upload failed — please try again before saving.', 'error');
         }
       });
     }
@@ -2568,23 +2666,35 @@
       const desc = document.getElementById('blogDesc').value.trim();
       const content = document.getElementById('blogContent').value.trim();
       if (!title) { toast('Please fill in the title.', 'error'); return; }
+      if (isDataUrlImage(image)) { toast('Image upload did not finish — please re-upload the image before saving.', 'error'); return; }
       const tag = (type === 'podcast') ? 'Podcast' : 'Article';
       const newBlog = { type, tag, title, date, time, image, video, desc, content };
-      const blogs = getBlogs();
       const editIdx = document.getElementById('blogEditIdx').value;
-      if (editIdx !== '') blogs[parseInt(editIdx)] = newBlog;
-      else blogs.unshift(newBlog);
-      await saveBlogs(blogs);
-      closeModal('blogModal');
-      renderBlogs();
-      toast('Post saved successfully!');
+      try {
+        const updated = await updateCollection('blogs', (items) => {
+          if (editIdx !== '') items[parseInt(editIdx)] = newBlog;
+          else items.unshift(newBlog);
+        });
+        _cachedBlogs = updated;
+        closeModal('blogModal');
+        renderBlogs();
+        toast('Post saved successfully!');
+      } catch (e) {
+        console.error('saveBlog failed:', e);
+        toast('Save failed — your changes were not stored. ' + (e.message || ''), 'error');
+      }
     }
 
     async function deleteBlog(idx) {
       if (!confirm('Delete this post?')) return;
-      const blogs = getBlogs(); blogs.splice(idx, 1);
-      await saveBlogs(blogs);
-      renderBlogs(); toast('Post deleted.');
+      try {
+        const updated = await updateCollection('blogs', (items) => { items.splice(idx, 1); });
+        _cachedBlogs = updated;
+        renderBlogs(); toast('Post deleted.');
+      } catch (e) {
+        console.error('deleteBlog failed:', e);
+        toast('Delete failed. ' + (e.message || ''), 'error');
+      }
     }
 
     // ─── MEDIA ───
@@ -2675,8 +2785,10 @@
           toast('Image uploaded! ✓');
         } catch(e) {
           console.error('Upload failed:', e);
-          document.getElementById('mediaImage').value = dataUrl;
-          toast('Upload failed — image may not persist.', 'error');
+          // Do NOT fall back to the raw base64 dataUrl — embedding it in
+          // Firestore is what silently breaks saves once the doc hits 1MiB.
+          document.getElementById('mediaImage').value = '';
+          toast('Upload failed — please try again before saving.', 'error');
         }
       });
     }
@@ -2698,37 +2810,50 @@
         m.desc = document.getElementById('mediaDesc').value.trim();
         m.video = document.getElementById('mediaVideoUrl').value.trim();
       }
-      const items = getMedia();
-      if (idx !== '') items[idx] = m;
-      else items.push(m);
-      await saveMedia(items);
-      closeModal('mediaModal');
-      renderMediaAdmin(); renderDashboard(); toast(idx !== '' ? 'Media updated' : 'Media added');
+      if (isDataUrlImage(m.image)) { toast('Image upload did not finish — please re-upload the image before saving.', 'error'); return; }
+      try {
+        const updated = await updateCollection('media', (items) => {
+          if (idx !== '') items[parseInt(idx)] = m; else items.push(m);
+        });
+        _cachedMedia = updated;
+        closeModal('mediaModal');
+        renderMediaAdmin(); renderDashboard(); toast(idx !== '' ? 'Media updated' : 'Media added');
+      } catch (e) {
+        console.error('saveMediaItem failed:', e);
+        toast('Save failed — your changes were not stored. ' + (e.message || ''), 'error');
+      }
     }
 
     async function deleteMedia(idx) {
       if (!confirm('Are you sure you want to delete this media item?')) return;
-      const items = getMedia(); items.splice(idx, 1);
-      await saveMedia(items); renderMediaAdmin(); renderDashboard(); toast('Media item deleted');
+      try {
+        const updated = await updateCollection('media', (items) => { items.splice(idx, 1); });
+        _cachedMedia = updated;
+        renderMediaAdmin(); renderDashboard(); toast('Media item deleted');
+      } catch (e) {
+        console.error('deleteMedia failed:', e);
+        toast('Delete failed. ' + (e.message || ''), 'error');
+      }
     }
 
     // ─── RESET ───
     async function resetAllData() {
       if (!confirm('This will reset ALL content to the original defaults. Are you sure?')) return;
-      _cachedModules = DEFAULT_MODULES;
-      _cachedSpeakers = DEFAULT_SPEAKERS;
-      _cachedEvents = null;
-      _cachedBlogs = DEFAULT_BLOGS;
-      _cachedMedia = DEFAULT_MEDIA;
-      await Promise.all([
-        saveModules(DEFAULT_MODULES),
-        saveSpeakers(DEFAULT_SPEAKERS),
-        saveBlogs(DEFAULT_BLOGS),
-        saveMedia(DEFAULT_MEDIA),
-        saveFlyers(DEFAULT_FLYERS)
-      ]);
-      renderDashboard(); renderModules(); renderEvents(); renderSpeakers(); renderBlogs(); renderMediaAdmin(); renderFlyersAdmin();
-      toast('All data reset to defaults.');
+      try {
+        await Promise.all([
+          saveModules(DEFAULT_MODULES),
+          saveSpeakers(DEFAULT_SPEAKERS),
+          saveBlogs(DEFAULT_BLOGS),
+          saveMedia(DEFAULT_MEDIA),
+          saveFlyers(DEFAULT_FLYERS)
+        ]);
+        _cachedEvents = null;
+        renderDashboard(); renderModules(); renderEvents(); renderSpeakers(); renderBlogs(); renderMediaAdmin(); renderFlyersAdmin();
+        toast('All data reset to defaults.');
+      } catch (e) {
+        console.error('resetAllData failed:', e);
+        toast('Reset failed — some content may not have been reset. ' + (e.message || ''), 'error');
+      }
     }
 
     // ─── INIT ───
